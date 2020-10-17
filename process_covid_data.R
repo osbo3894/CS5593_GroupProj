@@ -1,7 +1,9 @@
 # Libraries used
 
-# Defining environment where data is located
-setwd("./Data/Daily Covid data")
+# Defining environment where script and data are located
+script_location <- getwd()
+data_location <- "./COVID-19/csse_covid_19_data/csse_covid_19_daily_reports_us"
+setwd(data_location)
 
 # ----------------------------------------------------
 # ----------------------------------------------------
@@ -66,8 +68,8 @@ final_covid_data <- final_covid_data[-1, ]
 
 # Exporting final transpose covid data
 # First, setting the working directory to be in the data folder
-new_wd <- dirname(getwd())
-setwd(new_wd)
+output_location <- paste0(script_location, "/Data")
+setwd(output_location)
 
 # Now exporting
 write.csv(final_covid_data, file = "processed_covid_data.csv")
