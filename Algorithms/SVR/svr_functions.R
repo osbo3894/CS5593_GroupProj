@@ -38,9 +38,40 @@ hess_mat <- function(X, n, ke, p1){
     for(i in 1:n){
       for(j in 1:n){
         
-        H[i, j] = (t(X[i, ] %*% X[j, ] + 1)^p1)
+        H[i, j] = (t(X[i, ]) %*% X[j, ] + 1)^p1
         
       }
+    }
+    
+  }
+  
+  return(H)
+  
+}
+
+hess_mat_test <- function(test_X, train_X, p1){
+  
+  ####################################################################
+  #
+  # Creates hessian matrix to be used in predicting new
+  # observations!
+  #
+  ####################################################################
+  
+  # Defining observations in data
+  n_train <- dim(train_X)[1]
+  n_test <- dim(test_X)[1]
+  
+  # Defining the Hessian Matrix
+  H = matrix(0, ncol = n_train, nrow = n_test)
+  
+  # Populating the Hessian Matrix
+  for(i in 1:n_test){
+    
+    for(j in 1:n_train){
+      
+      H[i, j] = (t(test_X[i, ]) %*% train_X[j, ] + 1)^p1
+      
     }
     
   }
@@ -65,6 +96,8 @@ optim_params <- function(H, e, n, Y, C){
   H_sq <- rbind(cbind(H, -H), 
                 cbind(-H, H))
   
+  H_sq <- H_sq + 1e-10
+  
   # Defining f (vector appearing in quadratic function)
   f <- rbind(as.matrix(e * matrix(1, nrow = n) - Y),
              as.matrix(e * matrix(1, nrow = n) + Y))
@@ -87,7 +120,7 @@ optim_params <- function(H, e, n, Y, C){
   
 }
 
-svr_vals <- function(qp_outputs, n, Y, epsilon, H){
+svr_vals <- function(qp_outputs, n, Y, H){
   
   ####################################################################
   #
@@ -103,18 +136,41 @@ svr_vals <- function(qp_outputs, n, Y, epsilon, H){
   # Calculating Beta
   beta = primal(qp_outputs)[1:n] - primal(qp_outputs)[(n + 1):length(primal(qp_outputs))]
   
-  # Checking the support vectors
-  sup_vects <- which(abs(beta) > epsilon)
-  
-  # Calculating bias -- there are two implementations
-  sv <- which(abs(beta) > epsilon & abs(beta) < (C - epsilon))
-  
   # First implementation
-  bias.1 <- (1 / length(sv)) * sum(Y[sv] - (e * sign(beta[sv])) - H[sv, sup_vects]*beta[sup_vects])
   bias.2 <- (max(Y) + min(Y)) / 2
   bias.3 <- mean(Y - H %*% beta)
   
-  return(list(beta, bias.1, bias.2, bias.3))
+  return(list(beta, bias.2, bias.3))
   
 }
 
+svr_model <- function(X, Y, n, ke, p1, C, e){
+  
+  ####################################################################
+  #
+  # This function takes the X matrix, the Y matrix, as well as
+  # the C, e, and epsilon hyperparameters
+  #
+  ####################################################################
+  
+  # Step 1
+  # Then, running the hess_mat function from svr_functions.R
+  # Here, we're implementing a linear kernel
+  H <- hess_mat(X, n, ke, p1)
+  
+  # Step 2: Calculating the optimization parameters for the qp algorithm
+  # This is done using optim_params from svr_functions.R
+  qp_params <- optim_params(H, e, n, Y, C)
+  
+  # Step 3: Running the qp algorithm using ipop() from library(kernlab)
+  outputs <- ipop(as.matrix(qp_params[[1]]), as.matrix(qp_params[[2]]), as.matrix(qp_params[[6]]),
+                  as.matrix(qp_params[[7]]), as.matrix(qp_params[[3]]), as.matrix(qp_params[[4]]),
+                  0)
+  
+  # Step 4: Running the svr_vals from svr_functions.R
+  # to get the Beta and biases.
+  results <- svr_vals(outputs, n, Y, H)
+  
+  return(results)
+  
+}
