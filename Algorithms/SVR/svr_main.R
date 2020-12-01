@@ -4,8 +4,6 @@ root_folder <- dirname(dirname(script_location))
 data_folder <- paste0(root_folder, '/Data Outputs')
 
 ### Libraries used ----
-library(kernlab) # For the ipop() function, to solve a quadratic programming problem.
-library(fpp2) # Nice ggplot2 wrappers for time series data
 
 ### Sourcing auxiliary R files ----
 setwd(script_location)
@@ -27,58 +25,23 @@ X = data[, 53:ncol(data)]
 
 # ----------------------------------------------------------------------
 #
-# SVR Model
+# Running the model
 #
 # ----------------------------------------------------------------------
-
-# Defining the model using the functions from svr_functions.R and the
-# library(kernlab) ipop() function to solve the
-# SVM QP e-loss function formulation
-svr_model <- function(X, Y, n, ke, p1, C, e, epsilon){
-  
-  ####################################################################
-  #
-  # This function takes the X matrix, the Y matrix, as well as
-  # the C, e, and epsilon hyperparameters
-  #
-  ####################################################################
-  
-  # Step 1
-  # Then, running the hess_mat function from svr_functions.R
-  # Here, we're implementing a linear kernel
-  H <- hess_mat(X, n, ke, p1)
-  
-  # Step 2: Calculating the optimization parameters for the qp algorithm
-  # This is done using optim_params from svr_functions.R
-  qp_params <- optim_params(H, e, n, Y, C)
-  
-  # Step 3: Running the qp algorithm using ipop() from library(kernlab)
-  outputs <- ipop(as.matrix(qp_params[[1]]), as.matrix(qp_params[[2]]), as.matrix(qp_params[[6]]),
-                  as.matrix(qp_params[[7]]), as.matrix(qp_params[[3]]), as.matrix(qp_params[[4]]),
-                  0)
-  
-  # Step 4: Running the svr_vals from svr_functions.R
-  # to get the Beta and biases.
-  results <- svr_vals(outputs, n, Y, epsilon, H)
-  
-  return(results)
-  
-}
 
 # First, scaling the data
 X = scale(X)
 Y = scale(Y)
 
-# Then, defining the number of data objects and all other hyperparameters
+# Then, defining the number of data objects as well as all other hyperparameters
 n = dim(X)[1]
 p1 = 2
 ke = "polynomial"
 C = 1
 e = 0.05
-epsilon = 0.5
 
 # Finally, running the model
-results <- svr_model(X, Y, n, ke, p1, C, e, epsilon)
+results <- svr_model(X, Y, n, ke, p1, C, e)
 
 # Extracting the estimated beta, and the two bias implementations
 beta <- as.matrix(results[[1]])
@@ -94,11 +57,3 @@ H <- hess_mat(X, n, ke, p1)
 svr_fit2 <- H %*% beta + bias2
 svr_fit3 <- H %*% beta + bias3
 svr_fit1 <- H %*% beta
-
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-# ---------------------------------------------------------------------------
-
-# Checking the fits by plotting Y training vs fitted values from svm model
-autoplot(ts(Y)) +
-  autolayer(ts(svr_fit2))
