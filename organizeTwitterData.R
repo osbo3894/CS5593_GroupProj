@@ -5,7 +5,7 @@ rm(list=ls())
 
 ## Declare global
 # First declare the number of times a variable must be mentioned
-mention.count <- 49
+mention.count <- 99
 date.lower <- as.Date("2020-03-22")
 date.upper <- Sys.Date() -1
 
@@ -35,7 +35,7 @@ for(i in dates.to.read){
 }
 ## Now find the terms with > 50 occurnaces
 term.count <- table(all.terms)
-terms.to.include <- names(which(term.count>49))
+terms.to.include <- names(which(term.count>mention.count))
 
 ## Now go through the terms again, load em, and then only include the values with the desiered terms
 # First create the output dataframe to merge everything into
