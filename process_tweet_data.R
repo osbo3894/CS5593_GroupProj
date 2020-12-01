@@ -11,10 +11,15 @@ setwd(data_location)
 
 ### Loading data
 ## Data from 03/23 to 09/19
-tweet_data <- read.csv("includeCount_49_dateLower_2020-03-22_dateUpper_2020-09-22TwitterCount.csv")
+#tweet_data <- read.csv("includeCount_49_dateLower_2020-03-22_dateUpper_2020-09-22TwitterCount.csv")
+tweet_data <- read.csv("./includeCount_99_dateLower_2020-03-22_dateUpper_2020-11-29TwitterCount.csv")
 
 # Last row is full of NA's
-tweet_data <- tweet_data[-182, ]
+na.row <- which(rowSums(!is.na(tweet_data))==0)
+if(!is.null(na.row)){
+  ## rm the na row
+    tweet_data <- tweet_data[-na.row,]
+}
 
 # ----------------------------------------------------
 # ----------------------------------------------------
