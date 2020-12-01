@@ -3,7 +3,7 @@ library(tm) # For list of stopwords
 
 # Defining location of data
 script_location <- getwd()
-data_location <- "./Data"
+data_location <- "./Data Outputs"
 setwd(data_location)
 
 # ----------------------------------------------------

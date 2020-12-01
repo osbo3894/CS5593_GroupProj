@@ -68,7 +68,7 @@ final_covid_data <- final_covid_data[-1, ]
 
 # Exporting final transpose covid data
 # First, setting the working directory to be in the data folder
-output_location <- paste0(script_location, "/Data")
+output_location <- paste0(script_location, "/Data Outputs")
 setwd(output_location)
 
 # Now exporting
