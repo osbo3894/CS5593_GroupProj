@@ -9,6 +9,8 @@ library(wordcloud)
 dashboard_location <- getwd()
 base_location <- dirname(getwd())
 data_location <- paste0(base_location, "/Data Outputs")
+algorithms_location <- paste0(base_location, "/Algorithms")
+svr_location <- paste0(base_location, "/Algorithms/SVR")
 
 # Loading data
 setwd(data_location)
@@ -17,6 +19,14 @@ data <- read.csv("combined_processed_data.csv", check.names = FALSE)
 # Processing data
 colnames(data)[1] <- "Date"
 data$Date <- as.Date(data$Date, format = "%m/%d/%y")
+
+# Source Algorithms (i.e. cross validation)
+setwd(algorithms_location)
+source('rolling_cross_validation.R')
+
+# Source SVR
+setwd(svr_location)
+source('svr_functions.R')
 
 # Source UI
 setwd(dashboard_location)
@@ -111,6 +121,64 @@ server <- function(input, output){
               colors = brewer.pal(8, "Dark2"))
     
   })
+  
+  output$svr_cross <- renderTable({
+    
+    # ------------------------------------------
+    # First, defining data and cross validation parameters
+    
+    # Extracting data from state selected
+    state <- input$svr_state
+    Y <- data[, state]
+    
+    # Scaling Y
+    Y <- scale(Y)
+    
+    # Extracting X
+    numb_predictors <- input$svr_num_predict
+    X <- data[, 53:numb_predictors]
+    
+    # Scaling X
+    X <- scale(X)
+    
+    # Start size, k, and model
+    start_size <- input$svr_start_size
+    K <- input$svr_k
+    model = "SVR"
+    
+    # ------------------------------------------
+    # Now defining the hyperparameter grid
+    
+    # Extracting values from dashboard
+    max_poly <- input$svr_poly
+    max_C <- input$svr_cost
+    max_e <- input$svr_e
+    ke <- input$svr_ke
+    
+    # Defining the sequences
+    p1 <- seq(from = 1, to = max_poly, by = 1)
+    C <- seq(from = 1, to = max_C, by = 1)
+    e <- seq(from = 0.1, to = max_e, by = 0.1)
+    
+    # Creating the grid
+    hyperparameters <- expand.grid(poly_deg = p1, ke = ke, 
+                                   C = C, e = e)
+    
+    # --------------------------------------------
+    # Passing values to cross validation function
+    
+    cross_outputs <- roll_cross_validation(X, Y, start_size, K, model, hyperparameters)
+
+    cross_outputs
+    
+  })
+  
+  # This is the structure for any plot
+  # output$svr_cross <- renderPlot({
+  #   
+  #   
+  #   
+  # })
   
 }
 
