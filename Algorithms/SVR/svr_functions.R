@@ -49,7 +49,7 @@ hess_mat <- function(X, n, ke, p1){
   
 }
 
-hess_mat_test <- function(test_X, train_X, p1){
+hess_mat_test <- function(test_X, train_X, p1, ke){
   
   ####################################################################
   #
@@ -65,12 +65,30 @@ hess_mat_test <- function(test_X, train_X, p1){
   # Defining the Hessian Matrix
   H = matrix(0, ncol = n_train, nrow = n_test)
   
-  # Populating the Hessian Matrix
-  for(i in 1:n_test){
+  
+  if(ke == "polynomial"){
     
-    for(j in 1:n_train){
+    # Populating the Hessian Matrix
+    for(i in 1:n_test){
       
-      H[i, j] = (t(test_X[i, ]) %*% train_X[j, ] + 1)^p1
+      for(j in 1:n_train){
+        
+        H[i, j] = (t(test_X[i, ]) %*% train_X[j, ] + 1)^p1
+        
+      }
+      
+    }
+    
+  } else if(ke == "linear"){
+    
+    # Populating the Hessian Matrix
+    for(i in 1:n_test){
+      
+      for(j in 1:n_train){
+        
+        H[i, j] = (t(test_X[i, ]) %*% train_X[j, ])
+        
+      }
       
     }
     
