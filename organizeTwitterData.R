@@ -67,5 +67,5 @@ for(i in dates.to.read){
 all.twitter.data <- all.twitter.data[-1,]
 
 ## Now write the csv
-out.name <- paste("includeCount_", mention.count, "_dateLower_", date.lower, "_dateUpper_", date.upper, "TwitterCount.csv", sep='')
+out.name <- paste("./Data\ Outputs/includeCount_", mention.count, "_dateLower_", date.lower, "_dateUpper_", date.upper, "TwitterCount.csv", sep='')
 write.csv(all.twitter.data, out.name, quote=F, row.names=F)

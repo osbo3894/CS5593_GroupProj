@@ -27,7 +27,7 @@ states <- c("Alabama", "Alaska", "Arizona", "Arkansas", "California", "Colorado"
 # to calculate daily increases.
 
 dates <- seq.Date(from = as.Date("04/12/2020", format = "%m/%d/%Y"),
-                  to = as.Date("09/19/2020", format = "%m/%d/%Y"), by = "day")
+                  to = as.Date(Sys.Date() -1, format = "%m/%d/%Y"), by = "day")
 dates <- format(dates, "%m/%d/%Y")
 
 # Creating the dataframe in which the confirmed cases will be stored

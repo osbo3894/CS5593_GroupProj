@@ -2,7 +2,7 @@
 
 # Defining location of data
 script_location <- getwd()
-data_location <- "./Data"
+data_location <- "./Data Outputs/"
 setwd(data_location)
 
 # ----------------------------------------------------
@@ -26,13 +26,9 @@ dates <- covid_data[, 1]
 # First, subsetting the tweet_data
 tweet_data_subset <- tweet_data[which(tweet_data$date %in% covid_data[, 1]), ]
 
-# Removing date attributes from both:
-tweet_data_subset <- tweet_data_subset[, -1]
-covid_data <- covid_data[, -1]
-
-# Combining the sets:
-combined_data <- cbind(covid_data, tweet_data_subset)
-rownames(combined_data) <- dates
+## Merge the data
+colnames(covid_data)[1] <- "date"
+combined_data <- merge(covid_data, tweet_data_subset, by="date")
 
 # Exporting the data:
-write.csv(combined_data, file = "combined_processed_data.csv")
+write.csv(combined_data, file = "combined_processed_data.csv", row.names = F, quote=F)

@@ -1,18 +1,14 @@
 # Libraries used
 library(tm) # For list of stopwords
 
-# Defining location of data
-script_location <- getwd()
-data_location <- "./Data Outputs"
-setwd(data_location)
-
 # ----------------------------------------------------
 # ----------------------------------------------------
 
 ### Loading data
-## Data from 03/23 to 09/19
-#tweet_data <- read.csv("includeCount_49_dateLower_2020-03-22_dateUpper_2020-09-22TwitterCount.csv")
-tweet_data <- read.csv("./includeCount_99_dateLower_2020-03-22_dateUpper_2020-11-29TwitterCount.csv")
+## Identify the newest file
+all.files <- list.files("./Data Outputs/", pattern = "include*")
+file.in <- all.files[which.max(as.Date(substr(all.files, 48, 57)))]
+tweet_data <- read.csv(paste("./Data Outputs/", file.in, sep=''))
 
 # Last row is full of NA's
 na.row <- which(rowSums(!is.na(tweet_data))==0)
